@@ -1,5 +1,5 @@
 -- $ mcounter.vhd
--- Mighty Counter - The one who see everything.
+-- Mighty Counter - The one who see everything (High Energy and Low Energy).
 
 library ieee;
 library work;

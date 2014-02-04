@@ -104,7 +104,7 @@ begin
 		if (r_srst = '1') then
 			i_counter	<= (others => '0');
 		
-		elsif ((enable = '1') and (trigger_in = '1') and (s_timebase_en = '1')) then
+		elsif ((enable = '1') and (trigger_in = '1')) then
 			i_counter	<= i_counter + 1;
 			incremented <= '1';
 			

@@ -19,7 +19,6 @@ entity tcounter is
 		signal clk					: in	std_logic;
 		-- Counter
 		signal trigger_in			: in	std_logic;
-		signal timebase_en			: in	std_logic;
 		signal enable				: in	std_logic;
 		signal srst					: in	std_logic;
 		--
@@ -61,9 +60,6 @@ architecture rtl of tcounter is
 	
 	signal r_fifo_wen				: std_logic := '0';
 	
-	signal r_timebase_en			: std_logic := '0';
-	signal s_timebase_en			: std_logic := '0';
-	
 	signal incremented				: std_logic := '0';
 	signal r_incremented			: std_logic := '0';
 	
@@ -82,9 +78,6 @@ begin
 		i_counter		<= (others => '0');
 		--
 		r_srst			<= '0';
-		r_timebase_en	<= '0';
-		s_timebase_en	<= '0';
-		--
 		incremented		<= '0';
 		r_incremented	<= '0';
 		--
@@ -93,10 +86,6 @@ begin
 	elsif (rising_edge(clk)) then  
 		--
 		r_srst	<= srst;
-		--
-		r_timebase_en <= timebase_en;
-		s_timebase_en <= r_timebase_en;
-		
 		--
 		r_incremented <= incremented;
 		
@@ -132,8 +121,6 @@ begin
 		
 	elsif (rising_edge(clk)) then
 
-		--if ((timebase_en = '0') and (reg_wait = '0') and (fifo_full = '0')) then
-		--if ((s_timebase_en = '1') and (reg_wait = '0') and (fifo_full = '0')) then
 		if ((r_incremented = '1') and (fifo_full = '0')) then --and (s_trigger_in = '1')
 			fifo_wen	<= '1';
 		else

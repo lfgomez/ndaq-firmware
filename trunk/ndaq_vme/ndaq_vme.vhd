@@ -401,6 +401,18 @@ architecture rtl of ndaq_vme is
 	);
 	end component;
 
+	component pll_lock is
+	port
+	(	signal rst		: in	std_logic;
+		signal clk	        : in	std_logic;
+		signal fifo0		: in	std_logic;
+		signal fifo1		: in	std_logic;
+		signal fifo2		: in	std_logic;
+		signal fifo3		: in	std_logic;
+		signal pll_lock         : in	std_logic;
+		signal pll_locked       : out	std_logic
+	);
+	end component;
 	
 ---------------------------
 --***********************--
@@ -491,6 +503,9 @@ architecture rtl of ndaq_vme is
 	signal usb_fifo_wrempty	: std_logic;
 	signal usb_fifo_wrusedw	: std_logic_vector(7 downto 0);
 	signal usb_fifo_rdusedw	: std_logic_vector(9 downto 0);
+	
+	-- AD9510 Locked Signal after generator 
+	signal locked			: std_logic; -- AD9510 Status after generator
 	
 ------------------------------------------
 ------------------------------------------
@@ -667,6 +682,7 @@ begin
 		p_rd			=> p_rd
 	);
 
+	
 	-- Status Register assignements
 	ireg(5)(0)			<= fifo_pae(0);
 	ireg(5)(1)			<= fifo_pae(1);
@@ -675,7 +691,7 @@ begin
 	ireg(5)(4)			<= overflow_a;	-- External FIFOs Overflow
 	ireg(5)(5)			<= overflow_b;	-- ADC + Counter + Timer Overflow
 	ireg(5)(6)			<= overflow_c;	-- TDC Readout FIFOs Overflow
-	ireg(5)(7)			<= stsclk;		-- AD9510 PLL Locked Status
+	ireg(5)(7)			<= not(locked);	-- AD9510 PLL Locked Status after generator (ireg is Active Low and Locked is Active High) 
 
 	-- VME Registers Assignments.	*** MUST MAKE THAT AUTOMATIC ! ***
 	b_wr(0)		<= user_write(9);
@@ -742,6 +758,20 @@ begin
 		reg_idata		=> reg_odata,
 		reg_odata		=> a_reg_idata
 	);
+	
+	pll_lock_generator:
+	pll_lock port map
+	(	
+		clk		=> pclk,
+		rst		=> mrst,
+		fifo0		=> fifo_pae(0),
+		fifo1		=> fifo_pae(1),
+		fifo2		=> fifo_pae(2),
+		fifo3		=> fifo_pae(3),
+		pll_lock	=> stsclk,
+		pll_locked	=> locked
+	);
+
 
 --*********************************************************************************************************
 

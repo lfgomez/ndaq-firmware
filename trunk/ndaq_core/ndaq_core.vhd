@@ -606,6 +606,20 @@ architecture rtl of ndaq_core is
 		signal reg_odata		: out	std_logic_vector(7 downto 0)		
 	);
 	end component;
+	
+	component tpush 
+	port
+	(
+		signal rst		: in	std_logic;
+		signal clk	        : in	std_logic;
+		signal timer		: in	std_logic_vector(7 downto 0);
+		signal state0		: in	std_logic;
+		signal state1		: in	std_logic;		
+		signal trigger		: in	std_logic;
+		signal triggerout	: out	std_logic;
+		signal output_sig       : out	std_logic := 'Z'
+	);
+	end component;
 
 ---------------------------
 --***********************--
@@ -669,7 +683,9 @@ architecture rtl of ndaq_core is
 	signal itrigger_en				: std_logic;
 	signal acq_en					: std_logic;
 	signal dualtrigger_en			: std_logic;
-	signal acq_rst					: std_logic;	
+	signal acq_rst					: std_logic;
+	signal soft_acq_rst				: std_logic;
+	signal reset_oreg				: std_logic;	
 	signal clk						: std_logic_vector((adc_channels-1) downto 0);
 	signal rd						: std_logic_vector((adc_channels-1) downto 0);
 	signal wr						: std_logic_vector((adc_channels-1) downto 0);
@@ -791,7 +807,7 @@ begin
 	fifo_wck	<= fclk;
 	
 	fifo_mrs	<= not(acq_rst);	-- It's ACQ Reset and is negated because IDT FIFO's reset signal is active low.
-	fifo_prs	<= '1';
+	fifo_prs	<= '1';-- not(oreg(73)(0));
 	fifo_rt		<= '1';
 
 	-- IDT FIFO: Configuracao da Programmable Almost Full Flag durante o RESET. 
@@ -961,7 +977,7 @@ begin
 	
 	--
 	-- ACQ Reset
-	acq_rst			<= oreg(4)(0);
+	acq_rst			<= oreg(4)(0) or oreg(73)(0); --or soft_acq_rst;
 	
 	--
 	-- ADC DCOs (Data Clock Outputs) assignements.
@@ -1112,6 +1128,28 @@ begin
 		adc_lock		=> adc_lock			
 	);
 	
+-- 	reset_push:
+-- 	tpush port map
+-- 	(	
+-- 		rst 		=> acq_rst,
+-- 		clk		=> clk(0),
+-- 		timer		=>  x"FF",
+-- 		state0		=> '0',
+-- 		state1		=> '1',
+-- 		trigger		=> oreg(73)(0),
+-- 		--triggerout	=> reset_oreg,
+-- 		output_sig	=> soft_acq_rst
+-- 	);
+
+	-- Reset oreg from soft reset
+-- 	process(clk)
+-- 	begin
+-- 		if (rising_edge(clk(0))) then
+-- 		    if (reset_oreg ='1') then
+-- 				 oreg(73)(0) <= '0';
+-- 		    end if;
+-- 		end if;
+-- 	end process;
 	--
 	-- Mighty Trigger Counter (will not be locked during dead time)
 	mcounter_trigger_in <= acq_trigger; --or c_trigger_b(0) or c_trigger_c(0);
@@ -1132,7 +1170,7 @@ begin
 	mtrigger_counter:
 	mcounter port map
 	(	
-		rst					=> acq_rst,
+		rst					=> (acq_rst or oreg(73)(0)),
 		clk					=> clk(0),
 		-- Counter
 		trigger_in			=> mcounter_trigger_in,
@@ -1170,7 +1208,7 @@ begin
 	trigger_counter:
 	tcounter port map
 	(	
-		rst					=> acq_rst,
+		rst					=> (acq_rst or oreg(73)(0)),
 		clk					=> clk(0),
 		-- Counter
 		trigger_in			=> tcounter_trigger_in, --int_trigger(i),
@@ -1436,19 +1474,19 @@ begin
 	process(clk(0))
 	begin
 		if (rising_edge(clk(0))) then
-			-- TDC STOPs Disable acessado através de um registrador para ser controlado por software:
+			-- TDC STOPs Disable acessado atravï¿½s de um registrador para ser controlado por software:
 			tdc_stop_dis(1) <= oreg(62)(0) or sys_lock;
 			tdc_stop_dis(2) <= oreg(62)(1) or sys_lock;
 			tdc_stop_dis(3) <= oreg(62)(2) or sys_lock;
 			tdc_stop_dis(4) <= oreg(62)(3) or sys_lock;
 			
-			-- TDC START Disable acessado através de um registrador para ser controlado por software:
+			-- TDC START Disable acessado atravï¿½s de um registrador para ser controlado por software:
 			tdc_start_dis <= oreg(62)(4) or sys_lock;
 		end if;
 	end process;
 	
-	-- TDC Reset acessado através de um registrador para ser controlado por software:
-	-- É negado por ser ativo em nível baixo.
+	-- TDC Reset acessado atravï¿½s de um registrador para ser controlado por software:
+	-- ï¿½ negado por ser ativo em nï¿½vel baixo.
 	tdc_puresn <= not(oreg(63)(0)); 
 	
 -- ****************************** OVERFLOW FLAGS ******************************

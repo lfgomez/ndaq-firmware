@@ -134,7 +134,7 @@ begin
 			g_delayedtrig_out <= f_delayedtrig_out;
 			h_delayedtrig_out <= g_delayedtrig_out;
 			i_delayedtrig_out <= h_delayedtrig_out;
-			delayedtrig_out <= (a_delayedtrig_out or b_delayedtrig_out or c_delayedtrig_out or d_delayedtrig_out or e_delayedtrig_out);
+			delayedtrig_out <= (u_delayedtrig_out or v_delayedtrig_out or x_delayedtrig_out or z_delayedtrig_out or a_delayedtrig_out or b_delayedtrig_out or c_delayedtrig_out or d_delayedtrig_out or e_delayedtrig_out or f_delayedtrig_out or g_delayedtrig_out or h_delayedtrig_out or i_delayedtrig_out);
 		end if;
 	end process;
 	

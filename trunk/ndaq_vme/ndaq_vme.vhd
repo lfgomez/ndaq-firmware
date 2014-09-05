@@ -413,6 +413,14 @@ architecture rtl of ndaq_vme is
 		signal pll_locked       : out	std_logic
 	);
 	end component;
+
+	component pic_restart is
+	port
+	(	signal rst		: in	std_logic;
+		signal clk	        : in	std_logic;
+		signal output_restart   : out	std_logic
+	);
+	end component;
 	
 ---------------------------
 --***********************--
@@ -507,6 +515,9 @@ architecture rtl of ndaq_vme is
 	-- AD9510 Locked Signal after generator 
 	signal locked			: std_logic; -- AD9510 Status after generator
 	
+	-- TimeCounter to restart the PIC
+	signal myTimeCounter : std_logic;
+	
 ------------------------------------------
 ------------------------------------------
 
@@ -518,7 +529,27 @@ begin
 	t1_b	<= sclk;
 	
 	can_pgc <= stsclk;
-	can_pgd <= 'Z';
+	--can_pgd <= 'Z';
+	
+	process(pclk, oreg(7)(0))
+	begin
+		if (oreg(7)(0) = '1') then
+			can_pgd <= '0';
+		elsif (rising_edge(pclk)) then
+			can_pgd <= 'Z';
+		end if;
+	end process;
+	
+		
+-- 	process(pclk, oreg(7)(0), myTimeCounter)
+-- 	begin
+-- 		if (oreg(7)(0) = '1') or (myTimeCounter = '1') then
+-- 			can_pgd <= '0';
+-- 		elsif (rising_edge(pclk)) then
+-- 			can_pgd <= 'Z';
+-- 		end if;
+-- 	end process;
+	
 	can_pgm <= 'Z';
 
 --	vme_berr		<= 'Z';
@@ -771,6 +802,14 @@ begin
 		pll_lock	=> stsclk,
 		pll_locked	=> locked
 	);
+	
+	restartPIC:
+ 	pic_restart port map
+ 	(	
+ 		rst		=> mrst,
+ 		clk	        => pclk,
+ 		output_restart  => myTimeCounter
+ 	);
 
 
 --*********************************************************************************************************

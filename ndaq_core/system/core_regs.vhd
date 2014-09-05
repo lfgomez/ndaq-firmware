@@ -125,9 +125,10 @@ package core_regs is
 		(x"82",	true,	true,	false,	x"00"),	-- 71 - ADC Word Mode: Bit 0: '0' for 8 bits, '1' for 10 bits.
 		(x"83",	true,	true,	false,	x"00"),	-- 72 - 8 bits mode bit selection: See doc.
 
+		-- DAQ Soft Reset  
+		(x"27",	true,	true,	false,	x"00"),	-- 73 - IDT FIFOs Partial Reset + Counters Reset (active high).
 		--
-		(x"27",	true,	true,	false,	x"00"),	-- 73 - R/W Test Register.
-		(x"28",	true,	true,	false,	x"64")	-- 74 - Firmware Version.
+		(x"28",	true,	true,	false,	x"66")	-- 74 - Firmware Version.
 	);
 
 -------------------------------------------------------------------------------

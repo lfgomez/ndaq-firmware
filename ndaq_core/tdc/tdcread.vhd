@@ -137,7 +137,7 @@ architecture rtl of tdcread is
 	signal i_clear			: std_logic := '0';
 	signal i_transfer		: std_logic := '0';
 	signal any_data			: std_logic := '0';
-	signal scounter			: std_logic_vector(7 downto 0) := x"00";
+	signal scounter			: std_logic_vector(15 downto 0) := x"0000";
 	signal triggered		: std_logic := '0';
 
 	-- Reset Window FSM
@@ -146,7 +146,7 @@ architecture rtl of tdcread is
 	signal sm_rst	 		: sm_rst_t;
 	attribute syn_encoding 	of sm_rst_t : type is "safe";
 	signal i_rst			: std_logic := '0';
-	signal tcounter			: std_logic_vector(7 downto 0) := x"00";
+	signal tcounter			: std_logic_vector(15 downto 0) := x"0000";
 
 	-- TDC Reset
 	signal tdc_reset		: std_logic := '0';
@@ -467,7 +467,7 @@ begin
 					scounter <= scounter + 1;
 					
 					-- WHAT TO DO!?!?!?!
-					if (scounter = x"44") then
+					if (scounter = x"14") then -- Let's Wait 20 clock cicles = 500 nanoseconds
 						scounter <= (others => '0');
 						--
 						if (triggered = '1') then
@@ -564,7 +564,7 @@ begin
 					tcounter <= tcounter + 1;
 					
 					-- WHAT TO DO!?!?!?!
-					if (tcounter = x"88") then
+					if (tcounter = x"013C") then -- Let's Wait 316 clock cicles to reset = 1.7 microS
 						tcounter <= (others => '0');
 						--
 						if (no_reset = '1') then

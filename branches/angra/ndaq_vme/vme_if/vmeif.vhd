@@ -914,10 +914,10 @@
       --elsif RISING_EDGE(i_clock) then 
 	  if RISING_EDGE(i_clock) then
 		
-		-- LF's CSR Addressing (ADER synchronous loading).
+		-- LF's CSR Addressing for Angra (ADER synchronous loading).
 		if (i_reset) then
-			ADER(0)	<= x"02";	
-			ADER(1)	<= BAR(3 downto 0) & "0000";	
+			ADER(0)	<= BAR & "000";	
+			ADER(1)	<= x"00";	
 			ADER(2)	<= x"00";		
 			ADER(3)	<= x"00";	
 		end if;
